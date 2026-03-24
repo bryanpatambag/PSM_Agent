@@ -1,31 +1,59 @@
 # PSM_Agent
 
-SecureTech CLR Command Procedure
-This project provides a SQL Server CLR stored procedure that acts as a secure bridge between SQL Server and the Shaiya game server. It enables administrators to send server commands directly from SQL while enforcing strict validation, logging, and security controls.
+## SecureTech CLR Command Procedure
 
-Features
+This project provides a SQL Server CLR stored procedure that acts as a secure bridge between SQL Server and the Shaiya game server.  
+It enables administrators to send server commands directly from SQL while enforcing strict validation, logging, and security controls.
 
-Input validation: Rejects empty, overly long, or malformed commands.
+---
 
-Whitelist security: Only allows approved commands (/nt, /ntcn, /kick, /mmake).
+## Features
 
-Rate limiting: Enforces a 1‑second delay between commands to prevent spam.
+- **Input validation**: Rejects empty, overly long, or malformed commands.  
+- **Whitelist security**: Only allows approved commands (`/nt`, `/ntcn`, `/kick`, `/mmake`).  
+- **Rate limiting**: Enforces a 1‑second delay between commands to prevent spam.  
+- **Logging**: Records all activity (`SUCCESS` or `ERROR`) with timestamp, user identity, service, and command in `PSM_Agent.txt`.  
+- **Socket communication**: Sends packets securely to the Shaiya server (`127.0.0.1:40900`).  
+- **Error handling**: Captures and logs errors, returning clear feedback to SQL Server.  
 
-Logging: Records all activity (SUCCESS or ERROR) with timestamp, user identity, service, and command in PSM_Agent.txt.
+---
 
-Socket communication: Sends packets securely to the Shaiya server (127.0.0.1:40900).
+## Installation
 
-Error handling: Captures and logs errors, returning clear feedback to SQL Server.
+```sql
+/* STEP 1: Enable CLR integration */
+EXEC sp_configure 'clr enabled', 1;
+RECONFIGURE;
+GO
 
-Installation
-Enable CLR integration in SQL Server.
+/* STEP 2: Set database TRUSTWORTHY ON */
+ALTER DATABASE [securetech] SET TRUSTWORTHY ON;
+GO
 
-Create a database (e.g., securetech).
+/* STEP 3: Switch to the database (dito ka nasa loob ng securetech database) */
+USE [securetech];
+GO
 
-Set the database to TRUSTWORTHY ON.
+/* STEP 4: Register the assembly (DLL file must exist at this path) */
+CREATE ASSEMBLY [PSM_Agent]
+AUTHORIZATION dbo
+FROM 'C:\ShaiyaServer\PSM_Client\PSM_Agent.dll'
+WITH PERMISSION_SET = EXTERNAL_ACCESS;
+GO
 
-Register the assembly (PSM_Agent.dll).
+/* STEP 5: Create the stored procedure linked to the assembly */
+CREATE PROCEDURE [dbo].[Command]
+  @serviceName NVARCHAR(4000),
+  @cmmd NVARCHAR(4000)
+AS EXTERNAL NAME [PSM_Agent].[StoredProcedures].[Command];
+GO
 
-Create the stored procedure dbo.Command.
+/* STEP 6: Test run of the procedure */
+DECLARE @return_value INT;
 
-Test by executing a sample command (/nt Test message).
+EXEC @return_value = dbo.Command
+    @serviceName = N'ps_game',
+    @cmmd = N'/nt Test message';
+
+SELECT 'Return Value' = @return_value;
+GO
