@@ -17,6 +17,9 @@ It enables administrators to send server commands directly from SQL while enforc
 - **Error handling**: Captures and logs errors, returning clear feedback to SQL Server.  
 
 ---
+## Demo Video
+
+[![Watch the video](https://img.youtube.com/vi/xLphPV79nss/maxresdefault.jpg)](https://youtu.be/xLphPV79nss)
 
 ## Installation
 
