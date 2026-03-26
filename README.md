@@ -10,7 +10,7 @@ It enables administrators to send server commands directly from SQL while enforc
 ## Features
 
 - **Input validation**: Rejects empty, overly long, or malformed commands.  
-- **Whitelist security**: Only allows approved commands (`/nt`, `/ntcn`, `/kick`, `/mmake`).  
+- **Whitelist security**: Only allows approved commands (`/nt`, `/ntcn`, `/kickcn`, `/mmake`).  
 - **Rate limiting**: Enforces a 1‑second delay between commands to prevent spam.  
 - **Logging**: Records all activity (`SUCCESS` or `ERROR`) with timestamp, user identity, service, and command in `PSM_Agent.txt`.  
 - **Socket communication**: Sends packets securely to the Shaiya server (`127.0.0.1:40900`).  
@@ -24,34 +24,51 @@ It enables administrators to send server commands directly from SQL while enforc
 ## Installation
 
 ```sql
-/* STEP 1: Enable CLR integration */
+/* STEP 1: Create a database named securetech */
+CREATE DATABASE securetech
+ON PRIMARY (
+    NAME = securetech_data,
+    FILENAME = 'C:\SQLData\securetech_data.mdf',
+    SIZE = 10MB,
+    MAXSIZE = 100MB,
+    FILEGROWTH = 5MB
+)
+LOG ON (
+    NAME = securetech_log,
+    FILENAME = 'C:\SQLData\securetech_log.ldf',
+    SIZE = 5MB,
+    MAXSIZE = 25MB,
+    FILEGROWTH = 5MB
+);
+
+/* STEP 2: Enable CLR integration */
 EXEC sp_configure 'clr enabled', 1;
 RECONFIGURE;
 GO
 
-/* STEP 2: Set database TRUSTWORTHY ON */
+/* STEP 3: Set database TRUSTWORTHY ON */
 ALTER DATABASE [securetech] SET TRUSTWORTHY ON;
 GO
 
-/* STEP 3: Switch to the database (dito ka nasa loob ng securetech database) */
+/* STEP 4: Switch to the database */
 USE [securetech];
 GO
 
-/* STEP 4: Register the assembly (DLL file must exist at this path) */
+/* STEP 5: Register the assembly (DLL file must exist at this path) */
 CREATE ASSEMBLY [PSM_Agent]
 AUTHORIZATION dbo
 FROM 'C:\ShaiyaServer\PSM_Client\PSM_Agent.dll'
 WITH PERMISSION_SET = EXTERNAL_ACCESS;
 GO
 
-/* STEP 5: Create the stored procedure linked to the assembly */
+/* STEP 6: Create the stored procedure linked to the assembly */
 CREATE PROCEDURE [dbo].[Command]
   @serviceName NVARCHAR(4000),
   @cmmd NVARCHAR(4000)
 AS EXTERNAL NAME [PSM_Agent].[StoredProcedures].[Command];
 GO
 
-/* STEP 6: Test run of the procedure */
+/* STEP 7: Test run of the procedure */
 DECLARE @return_value INT;
 
 EXEC @return_value = dbo.Command
