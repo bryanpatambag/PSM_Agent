@@ -8,7 +8,7 @@ using System.Net.Sockets;
 public class StoredProcedures
 {
     private static readonly string logPath = @"C:\ShaiyaServer\PSM_Client\PSM_Agent.txt";
-    private static readonly string[] allowedCommands = { "/nt", "/ntcn", "/kick", "/mmake" };
+    private static readonly string[] allowedCommands = { "/nt", "/ntcn", "/kickcn", "/mmake" };
 
     [SqlProcedure]
     public static int Command(SqlString serviceName, SqlString cmmd)
