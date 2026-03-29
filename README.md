@@ -26,7 +26,7 @@ Core execution logic.
 
 ### CommandValidator.cs
 Ensures commands are safe and allowed.  
-- Checks format, length, and whitelist (`/nt`, `/ntcn`, `/kickcn`, `/mmake`)  
+- Checks format, length, and whitelist (`/nt`, `/ntcn`, `/kick`, `/mmake`)  
 - Throws exceptions for invalid input
 
 ### Logger.cs
