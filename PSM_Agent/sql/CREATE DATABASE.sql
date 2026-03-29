@@ -29,6 +29,10 @@ USE [securetech];
 GO
 
 /* STEP 5: Register the assembly (DLL file must exist at this path) */
+IF EXISTS (SELECT * FROM sys.assemblies WHERE name = 'PSM_Agent')
+    DROP ASSEMBLY [PSM_Agent];
+GO
+
 CREATE ASSEMBLY [PSM_Agent]
 AUTHORIZATION dbo
 FROM 'C:\ShaiyaServer\PSM_Client\PSM_Agent.dll'
@@ -36,18 +40,18 @@ WITH PERMISSION_SET = EXTERNAL_ACCESS;
 GO
 
 /* STEP 6: Create the stored procedure linked to the assembly */
-CREATE PROCEDURE [dbo].[Command]
-  @serviceName NVARCHAR(4000),
-  @cmmd NVARCHAR(4000)
-AS EXTERNAL NAME [PSM_Agent].[StoredProcedures].[Command];
+CREATE PROCEDURE [dbo].[RunServiceCommand]
+  @Service NVARCHAR(MAX),
+  @CommandText NVARCHAR(MAX)
+AS EXTERNAL NAME [PSM_Agent].[PSM_Agent.StoredProcedures].[ExecuteCommand];
 GO
 
 /* STEP 7: Test run of the procedure */
 DECLARE @return_value INT;
 
-EXEC @return_value = dbo.Command
-    @serviceName = N'ps_game',
-    @cmmd = N'/nt Test message';
+EXEC @return_value = dbo.RunServiceCommand
+    @Service = N'ps_game',
+    @CommandText = N'/nt Test message';
 
 SELECT 'Return Value' = @return_value;
 GO
