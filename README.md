@@ -1,9 +1,10 @@
 # PSM_Agent
 
-## SecureTech CLR Command Procedure
+### SecureTech CLR Command Procedure
 
-This project provides a SQL Server CLR stored procedure that acts as a secure bridge between SQL Server and the Shaiya game server.  
-It enables administrators to send server commands directly from SQL while enforcing strict validation, logging, and security controls.
+This project provides a **SQL Server CLR stored procedure** that acts as a secure bridge between SQL Server and the Shaiya game server.  
+
+It enables administrators to send server commands directly from SQL while enforcing strict **validation, logging, and security controls**.
 
 ---
 
