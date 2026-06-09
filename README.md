@@ -13,6 +13,8 @@ It enables administrators to send server commands directly from SQL while enforc
 - Visual Studio 2026
 - .NET Framework 4.8.1
 - C#
+  
+---
 
 ## Project Structure
 
