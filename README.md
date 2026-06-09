@@ -8,6 +8,12 @@ It enables administrators to send server commands directly from SQL while enforc
 
 ---
 
+##Environment
+Windows
+Visual Studio 2026
+.NET Framework 4.8.1
+C#
+
 ## Project Structure
 
 ### StoredProcedures.cs
