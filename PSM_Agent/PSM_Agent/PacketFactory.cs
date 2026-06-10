@@ -10,13 +10,17 @@ namespace PSM_Agent
         public static byte[] Create(string service, string command)
         {
             var header = BuildHeader(service);
+            var cmdBytes = Encoding.UTF8.GetBytes(command);
+
             using (var ms = new MemoryStream())
-            using (var bw = new BinaryWriter(ms, Encoding.UTF8, true))
             {
-                bw.Write((short)(2 + header.Length + 2 + command.Length));
-                bw.Write(header);
-                bw.Write((short)command.Length);
-                bw.Write(Encoding.UTF8.GetBytes(command));
+                using (var bw = new BinaryWriter(ms, Encoding.UTF8, true))
+                {
+                    bw.Write((short)(sizeof(short) + header.Length + sizeof(short) + cmdBytes.Length));
+                    bw.Write(header);
+                    bw.Write((short)cmdBytes.Length);
+                    bw.Write(cmdBytes);
+                }
                 return ms.ToArray();
             }
         }
@@ -24,10 +28,12 @@ namespace PSM_Agent
         {
             var buffer = new byte[HeaderSize];
             using (var ms = new MemoryStream(buffer))
-            using (var bw = new BinaryWriter(ms, Encoding.UTF8, true))
             {
-                bw.Write(HeaderMarker);
-                bw.Write(Encoding.UTF8.GetBytes(service));
+                using (var bw = new BinaryWriter(ms, Encoding.UTF8, true))
+                {
+                    bw.Write(HeaderMarker);
+                    bw.Write(Encoding.UTF8.GetBytes(service));
+                }
                 return buffer;
             }
         }
