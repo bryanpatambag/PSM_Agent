@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Text;
 
 namespace PSM_Agent
 {
@@ -9,36 +8,19 @@ namespace PSM_Agent
         private static readonly string LogFilePath =
             Path.Combine(@"C:\ShaiyaServer\PSM_Client", "PSM_Agent.txt");
 
-        public static void RecordSuccess(string serviceName, string command)
+        public static void RecordSuccess(string serviceName, string command) =>
+            WriteEntry("OK", serviceName, command);
+
+        public static void RecordFailure(string serviceName, string command, string errorMessage) =>
+            WriteEntry("FAIL", serviceName, command, errorMessage);
+
+        private static void WriteEntry(string status, string serviceName, string command, string errorMessage = null)
         {
-            WriteEntry("SUCCESS", serviceName, command, null);
-        }
-
-        public static void RecordFailure(string serviceName, string command, string errorMessage)
-        {
-            WriteEntry("ERROR", serviceName, command, errorMessage);
-        }
-
-        private static void WriteEntry(string status, string serviceName, string command, string errorMessage)
-        {
-            string currentUser = System.Security.Principal.WindowsIdentity.GetCurrent()?.Name ?? "Unknown";
-            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
-            var entry = new StringBuilder()
-                .Append(timestamp).Append('|')
-                .Append(status).Append('|')
-                .Append(currentUser).Append('|')
-                .Append(serviceName).Append('|')
-                .Append(command);
-
+            string line = $"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}|{status}|{Environment.UserName}|{serviceName}|{command}";
             if (!string.IsNullOrEmpty(errorMessage))
-            {
-                entry.Append('|').Append(errorMessage);
-            }
+                line += $"|{errorMessage}";
 
-            entry.AppendLine();
-
-            File.AppendAllText(LogFilePath, entry.ToString(), Encoding.UTF8);
+            File.AppendAllText(LogFilePath, line + Environment.NewLine);
         }
     }
 }

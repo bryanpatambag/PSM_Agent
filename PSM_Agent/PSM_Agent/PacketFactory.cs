@@ -8,38 +8,31 @@ namespace PSM_Agent
         private const int HeaderSize = 258;
         private const short HeaderMarker = 1281;
 
-        public static byte[] Create(string serviceName, string command)
+        public static byte[] Create(string service, string command)
         {
-            var headerData = BuildHeader(serviceName);
+            byte[] header = BuildHeader(service);
 
-            return BuildPacket(headerData, command);
+            using (var ms = new MemoryStream())
+            using (var bw = new BinaryWriter(ms, Encoding.UTF8, true))
+            {
+                short size = (short)(2 + header.Length + 2 + command.Length);
+                bw.Write(size);
+                bw.Write(header);
+                bw.Write((short)command.Length);
+                bw.Write(Encoding.UTF8.GetBytes(command));
+                return ms.ToArray();
+            }
         }
 
-        private static byte[] BuildHeader(string serviceName)
+        private static byte[] BuildHeader(string service)
         {
             var buffer = new byte[HeaderSize];
-            using (var stream = new MemoryStream(buffer))
-            using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+            using (var ms = new MemoryStream(buffer))
+            using (var bw = new BinaryWriter(ms, Encoding.UTF8, true))
             {
-                writer.Write(HeaderMarker);
-                writer.Write(Encoding.UTF8.GetBytes(serviceName));
-                writer.Flush();
-            }
-            return buffer;
-        }
-
-        private static byte[] BuildPacket(byte[] headerData, string command)
-        {
-            using (var packetStream = new MemoryStream())
-            using (var writer = new BinaryWriter(packetStream, Encoding.UTF8, true))
-            {
-                short totalSize = (short)(2 + headerData.Length + 2 + command.Length);
-                writer.Write(totalSize);
-                writer.Write(headerData);
-                writer.Write((short)command.Length);
-                writer.Write(Encoding.UTF8.GetBytes(command));
-                writer.Flush();
-                return packetStream.ToArray();
+                bw.Write(HeaderMarker);
+                bw.Write(Encoding.UTF8.GetBytes(service));
+                return buffer;
             }
         }
     }

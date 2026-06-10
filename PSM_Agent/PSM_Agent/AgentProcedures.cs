@@ -11,19 +11,18 @@ namespace PSM_Agent
         {
             try
             {
-                int outcome = CommandExecutor.Process(serviceName.Value, commandInput.Value);
+                int result = CommandExecutor.Process(serviceName.Value, commandInput.Value);
 
-                SqlContext.Pipe.Send(
-                    outcome == 0
-                        ? $"Successfully dispatched command to {serviceName}: {commandInput}"
-                        : $"Command failed for {serviceName}: {commandInput}"
-                );
+                string message = result == 0
+                    ? $"OK {serviceName}: {commandInput}"
+                    : $"FAIL {serviceName}: {commandInput}";
 
-                return outcome;
+                SqlContext.Pipe.Send(message);
+                return result;
             }
             catch (Exception ex)
             {
-                SqlContext.Pipe.Send($"Execution error for {serviceName}: {ex.Message}");
+                SqlContext.Pipe.Send($"ERROR {serviceName}: {ex.Message}");
                 return -1;
             }
         }

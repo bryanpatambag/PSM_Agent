@@ -7,35 +7,25 @@ namespace PSM_Agent
     {
         private const string Host = "127.0.0.1";
         private const int Port = 40900;
-        private const int BufferSize = 1024;
 
-        public static int Process(string targetService, string commandInput)
+        public static int Process(string service, string command)
         {
             try
             {
-                CommandRules.Check(commandInput);
-                RequestThrottle.Enforce(targetService);
+                CommandRules.Check(command);
+                RequestThrottle.Enforce(service);
 
-                byte[] responseBuffer = new byte[BufferSize];
+                byte[] buffer = new byte[1024];
+                byte[] packet = PacketFactory.Create(service, command);
 
-                using (Socket tcpClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
-                {
-                    tcpClient.Connect(Host, Port);
+                SocketHelper.Execute(Host, Port, packet, buffer);
 
-                    byte[] packetData = PacketFactory.Create(targetService, commandInput);
-                    tcpClient.Send(packetData);
-
-                    tcpClient.Receive(responseBuffer);
-
-                    tcpClient.Shutdown(SocketShutdown.Both);
-                }
-
-                ActivityLogger.RecordSuccess(targetService, commandInput);
+                ActivityLogger.RecordSuccess(service, command);
                 return 0;
             }
             catch (Exception ex)
             {
-                ActivityLogger.RecordFailure(targetService, commandInput, ex.Message);
+                ActivityLogger.RecordFailure(service, command, ex.Message);
                 return -1;
             }
         }
