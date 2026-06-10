@@ -4,7 +4,9 @@ namespace PSM_Agent
 {
     public static class CommandRules
     {
-        private static readonly string[] permitted =
+        private const int MaxCommandLength = 128;
+
+        private static readonly string[] Permitted =
         {
             "/nt",
             "/ntcn",
@@ -17,21 +19,14 @@ namespace PSM_Agent
             if (string.IsNullOrWhiteSpace(input))
                 throw new ArgumentException("Command cannot be empty.");
 
-            if (input.Length > 200)
-                throw new ArgumentException("Command exceeds maximum length.");
+            if (input.Length > MaxCommandLength)
+                throw new ArgumentException($"Command exceeds maximum length of {MaxCommandLength} characters.");
 
             if (!input.StartsWith("/"))
                 throw new ArgumentException("Command must start with '/'.");
 
-            bool isAllowed = false;
-            foreach (var cmd in permitted)
-            {
-                if (input.StartsWith(cmd, StringComparison.OrdinalIgnoreCase))
-                {
-                    isAllowed = true;
-                    break;
-                }
-            }
+            bool isAllowed = Array.Exists(Permitted,
+                cmd => input.StartsWith(cmd, StringComparison.OrdinalIgnoreCase));
 
             if (!isAllowed)
                 throw new ArgumentException("Command not recognized or not permitted.");
