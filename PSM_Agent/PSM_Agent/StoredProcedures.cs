@@ -1,33 +1,32 @@
-﻿using System;
+using System;
 using System.Data.SqlTypes;
 using Microsoft.SqlServer.Server;
 
 namespace PSM_Agent
 {
-    public class StoredProcedures
+    public class AgentProcedures
     {
         [SqlProcedure]
-        public static int ExecuteCommand(SqlString Service, SqlString CommandText)
+        public static int RunServiceCommand(SqlString serviceName, SqlString commandInput)
         {
             SqlPipe pipe = SqlContext.Pipe;
             try
             {
-                int result = CommandHandler.Execute(Service.ToString(), CommandText.ToString());
+                int outcome = CommandExecutor.Process(serviceName.ToString(), commandInput.ToString());
 
-                if (result == 0)
+                if (outcome == 0)
                 {
-                    pipe.Send($"Command sent to {Service}: {CommandText}");
+                    pipe.Send($"Successfully dispatched command to {serviceName}: {commandInput}");
                 }
                 else
                 {
-                    pipe.Send($"Failed to execute command for {Service}: {CommandText}");
+                    pipe.Send($"Command failed for {serviceName}: {commandInput}");
                 }
-
-                return result;
+                return outcome;
             }
             catch (Exception ex)
             {
-                pipe.Send($"Error executing command for {Service}: {ex.Message}");
+                pipe.Send($"Execution error for {serviceName}: {ex.Message}");
                 return -1;
             }
         }
