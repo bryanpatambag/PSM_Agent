@@ -41,12 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PacketBuilder.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="RateLimiter.cs" />
-    <Compile Include="CommandValidator.cs" />
-    <Compile Include="CommandHandler.cs" />
-    <Compile Include="StoredProcedures.cs" />
+    <Compile Include="PacketFactory.cs" />
+    <Compile Include="ActivityLogger.cs" />
+    <Compile Include="RequestThrottle.cs" />
+    <Compile Include="CommandRules.cs" />
+    <Compile Include="CommandExecutor.cs" />
+    <Compile Include="AgentProcedures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
