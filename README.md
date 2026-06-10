@@ -53,3 +53,9 @@ Constructs the binary packet to send to `ps_game`.
 Prevents flooding.  
 - Reads the last log entry timestamp from `PSM_Agent.txt`  
 - Blocks if a new command is issued within 1 second
+
+### SocketHelper.cs
+Handles socket communication.  
+- Connects to `127.0.0.1:40900`  
+- Sends packet data  
+- Receives server response
