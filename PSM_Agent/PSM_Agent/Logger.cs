@@ -1,38 +1,32 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 
 namespace PSM_Agent
 {
-    public static class Logger
+    public static class ActivityLogger
     {
-        private static readonly string logPath = @"C:\ShaiyaServer\PSM_Client\PSM_Agent.txt";
-
-        // Log success
-        public static void LogSuccess(string Service, string CommandText)
+        private static readonly string filePath = @"C:\ShaiyaServer\PSM_Client\PSM_Agent.txt";
+        public static void RecordSuccess(string serviceName, string command)
         {
-            AppendLog("SUCCESS", Service, CommandText, null);
+            WriteEntry("SUCCESS", serviceName, command, null);
         }
-
-        // Log error
-        public static void LogError(string Service, string CommandText, string Error)
+        public static void RecordFailure(string serviceName, string command, string errorMessage)
         {
-            AppendLog("ERROR", Service, CommandText, Error);
+            WriteEntry("ERROR", serviceName, command, errorMessage);
         }
-
-        // Append entry to text file
-        private static void AppendLog(string Status, string Service, string CommandText, string Error)
+        private static void WriteEntry(string status, string serviceName, string command, string errorMessage)
         {
-            DateTime now = DateTime.Now;
-            string userIdentity = System.Security.Principal.WindowsIdentity.GetCurrent()?.Name ?? "UnknownUser";
-
-            string line = $"{now}|{Status}|{userIdentity}|{Service}|{CommandText}";
-            if (!string.IsNullOrEmpty(Error))
-                line += $"|{Error}";
-
-            line += Environment.NewLine;
-
-            File.AppendAllText(logPath, line, Encoding.UTF8);
+            string currentUser = System.Security.Principal.WindowsIdentity.GetCurrent()?.Name ?? "Unknown";
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            var builder = new StringBuilder();
+            builder.Append($"{timestamp}|{status}|{currentUser}|{serviceName}|{command}");
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                builder.Append($"|{errorMessage}");
+            }
+            builder.AppendLine();
+            File.AppendAllText(filePath, builder.ToString(), Encoding.UTF8);
         }
     }
 }
