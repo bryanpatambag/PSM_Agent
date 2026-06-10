@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 
 namespace PSM_Agent
 {
-    public static class CommandValidator
+    public static class CommandRules
     {
-        private static readonly string[] allowedCommands =
+        private static readonly string[] permitted =
         {
             "/nt",
             "/ntcn",
@@ -12,29 +12,29 @@ namespace PSM_Agent
             "/mmake"
         };
 
-        public static void Validate(string CommandText)
+        public static void Check(string input)
         {
-            if (string.IsNullOrWhiteSpace(CommandText))
-                throw new ArgumentException("Empty command.");
+            if (string.IsNullOrWhiteSpace(input))
+                throw new ArgumentException("Command cannot be empty.");
 
-            if (CommandText.Length > 200)
-                throw new ArgumentException("Command too long.");
+            if (input.Length > 200)
+                throw new ArgumentException("Command exceeds maximum length.");
 
-            if (!CommandText.StartsWith("/"))
-                throw new ArgumentException("Invalid command format.");
+            if (!input.StartsWith("/"))
+                throw new ArgumentException("Command must start with '/'.");
 
-            bool valid = false;
-            foreach (var cmd in allowedCommands)
+            bool isAllowed = false;
+            foreach (var cmd in permitted)
             {
-                if (CommandText.StartsWith(cmd, StringComparison.OrdinalIgnoreCase))
+                if (input.StartsWith(cmd, StringComparison.OrdinalIgnoreCase))
                 {
-                    valid = true;
+                    isAllowed = true;
                     break;
                 }
             }
 
-            if (!valid)
-                throw new ArgumentException("Command not allowed.");
+            if (!isAllowed)
+                throw new ArgumentException("Command not recognized or not permitted.");
         }
     }
 }
