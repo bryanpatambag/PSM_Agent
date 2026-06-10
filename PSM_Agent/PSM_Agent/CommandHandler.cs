@@ -1,32 +1,34 @@
-﻿using System;
+using System;
 using System.Net.Sockets;
 
 namespace PSM_Agent
 {
-    public static class CommandHandler
+    public static class CommandExecutor
     {
-        public static int Execute(string Service, string CommandText)
+        public static int Process(string targetService, string commandInput)
         {
             try
             {
-                CommandValidator.Validate(CommandText);
-                RateLimiter.Check(Service);
-
-                using (Socket sender = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+                CommandRules.Check(commandInput);
+                RequestThrottle.Enforce(targetService);
+                using (Socket tcpClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                 {
-                    sender.Connect("127.0.0.1", 40900);
-                    byte[] packet = PacketBuilder.Build(Service, CommandText);
-                    sender.Send(packet);
-                    sender.Receive(new byte[1024]);
-                    sender.Shutdown(SocketShutdown.Both);
-                }
+                    tcpClient.Connect("127.0.0.1", 40900);
 
-                Logger.LogSuccess(Service, CommandText);
+                    byte[] packetData = PacketFactory.Create(targetService, commandInput);
+                    tcpClient.Send(packetData);
+
+                    byte[] responseBuffer = new byte[1024];
+                    tcpClient.Receive(responseBuffer);
+
+                    tcpClient.Shutdown(SocketShutdown.Both);
+                }
+                ActivityLogger.RecordSuccess(targetService, commandInput);
                 return 0;
             }
             catch (Exception ex)
             {
-                Logger.LogError(Service, CommandText, ex.Message);
+                ActivityLogger.RecordFailure(targetService, commandInput, ex.Message);
                 return -1;
             }
         }
