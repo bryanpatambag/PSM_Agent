@@ -14,6 +14,7 @@ LOG ON (
     MAXSIZE = 25MB,
     FILEGROWTH = 5MB
 );
+GO
 
 /* STEP 2: Enable CLR integration */
 EXEC sp_configure 'clr enabled', 1;
@@ -43,7 +44,7 @@ GO
 CREATE PROCEDURE [dbo].[RunServiceCommand]
   @Service NVARCHAR(MAX),
   @CommandText NVARCHAR(MAX)
-AS EXTERNAL NAME [PSM_Agent].[PSM_Agent.StoredProcedures].[ExecuteCommand];
+AS EXTERNAL NAME [PSM_Agent].[PSM_Agent.AgentProcedures].[RunServiceCommand];
 GO
 
 /* STEP 7: Test run of the procedure */
