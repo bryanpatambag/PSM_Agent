@@ -1,2 +1,2 @@
 ## Guide Video
-[Watch the guide video](https://youtu.be/WrfDHhoGBvE)
+[![Watch the guide](https://img.youtube.com/vi/WrfDHhoGBvE/maxresdefault.jpg)](https://youtu.be/WrfDHhoGBvE)
