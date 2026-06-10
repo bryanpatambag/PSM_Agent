@@ -13,42 +13,43 @@ It enables administrators to send server commands directly from SQL while enforc
 - Visual Studio 2026
 - .NET Framework 4.8.1
 - C#
-  
+
 ---
 
 ## Project Structure
 
-### StoredProcedures.cs
+### AgentProcedures.cs
 Entry point for SQL Server.  
-- Exposes `ExecuteCommand` as a SQL CLR procedure  
+- Exposes `RunServiceCommand` as a SQL CLR procedure  
 - Receives parameters from SQL  
-- Calls the handler  
+- Calls `CommandExecutor`  
 - Sends output back via `SqlPipe`
 
-### CommandHandler.cs
+### CommandExecutor.cs
 Core execution logic.  
-- Validates the command  
-- Enforces rate limits  
-- Builds the packet  
+- Validates the command via `CommandRules`  
+- Enforces rate limits via `RequestThrottle`  
+- Builds the packet via `PacketFactory`  
 - Sends it to `ps_game` via socket  
-- Logs the result
+- Logs the result via `ActivityLogger`
 
-### CommandValidator.cs
+### CommandRules.cs
 Ensures commands are safe and allowed.  
-- Checks format, length, and whitelist (`/nt`, `/ntcn`, `/kick`, `/mmake`)  
+- Checks format, length, and whitelist (`/nt`, `/ntcn`, `/kick`, `/mmake`, plus any added)  
 - Throws exceptions for invalid input
 
-### Logger.cs
+### ActivityLogger.cs
 Handles logging of command attempts.  
-- Appends success or error entries to `PSM_Agent.txt` (or SQL table if configured)  
+- Appends success or error entries to `PSM_Agent.txt`  
 - Records timestamp, user, service, command, and error message
 
-### PacketBuilder.cs
+### PacketFactory.cs
 Constructs the binary packet to send to `ps_game`.  
+- Uses fixed 258‑byte header (protocol requirement)  
 - Combines header, service name, and command text  
 - Produces correct byte structure
 
-### RateLimiter.cs
+### RequestThrottle.cs
 Prevents flooding.  
 - Reads the last log entry timestamp from `PSM_Agent.txt`  
 - Blocks if a new command is issued within 1 second
