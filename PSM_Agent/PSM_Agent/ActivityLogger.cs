@@ -16,7 +16,7 @@ namespace PSM_Agent
 
         private static void WriteEntry(string status, string serviceName, string command, string errorMessage = null)
         {
-            string line = $"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}|{status}|{Environment.UserName}|{serviceName}|{command}";
+            var line = $"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}|{status}|{serviceName}|{command}";
             if (!string.IsNullOrEmpty(errorMessage))
                 line += $"|{errorMessage}";
 

@@ -12,12 +12,9 @@ namespace PSM_Agent
             try
             {
                 int result = CommandExecutor.Process(serviceName.Value, commandInput.Value);
-
-                string message = result == 0
+                SqlContext.Pipe.Send(result == 0
                     ? $"OK {serviceName}: {commandInput}"
-                    : $"FAIL {serviceName}: {commandInput}";
-
-                SqlContext.Pipe.Send(message);
+                    : $"FAIL {serviceName}: {commandInput}");
                 return result;
             }
             catch (Exception ex)

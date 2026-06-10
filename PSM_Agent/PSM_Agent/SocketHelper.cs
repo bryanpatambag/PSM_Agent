@@ -11,7 +11,6 @@ namespace PSM_Agent
                 client.Connect(host, port);
                 client.Send(data);
                 client.Receive(buffer);
-                client.Shutdown(SocketShutdown.Both);
             }
         }
     }
