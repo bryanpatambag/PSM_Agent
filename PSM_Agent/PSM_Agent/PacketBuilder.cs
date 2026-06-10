@@ -1,31 +1,32 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
 
 namespace PSM_Agent
 {
-    public static class PacketBuilder
+    public static class PacketFactory
     {
-        public static byte[] Build(string Service, string CommandText)
+        public static byte[] Create(string serviceName, string command)
         {
-            var temp = new BinaryWriter(new MemoryStream(258));
-            var binary = new BinaryWriter(new MemoryStream());
+            using (var headerStream = new MemoryStream(258))
+            using (var headerWriter = new BinaryWriter(headerStream))
+            {
+                headerWriter.Write((short)1281);
+                headerWriter.Write(Encoding.UTF8.GetBytes(serviceName));
 
-            temp.Write((short)1281);
-            temp.Write(Encoding.UTF8.GetBytes(Service));
-
-            byte[] data = new byte[258];
-            var stream = (MemoryStream)temp.BaseStream;
-            stream.Position = 0;
-            stream.Read(data, 0, (int)stream.Length);
-
-            binary.BaseStream.Position = 0;
-            short size = (short)(2 + data.Length + 2 + CommandText.Length);
-            binary.Write(size);
-            binary.Write(data);
-            binary.Write((short)CommandText.Length);
-            binary.Write(Encoding.UTF8.GetBytes(CommandText));
-
-            return ((MemoryStream)binary.BaseStream).ToArray();
+                byte[] headerData = new byte[258];
+                headerStream.Position = 0;
+                headerStream.Read(headerData, 0, (int)headerStream.Length);
+                using (var packetStream = new MemoryStream())
+                using (var packetWriter = new BinaryWriter(packetStream))
+                {
+                    short totalSize = (short)(2 + headerData.Length + 2 + command.Length);
+                    packetWriter.Write(totalSize);
+                    packetWriter.Write(headerData);
+                    packetWriter.Write((short)command.Length);
+                    packetWriter.Write(Encoding.UTF8.GetBytes(command));
+                    return packetStream.ToArray();
+                }
+            }
         }
     }
 }
