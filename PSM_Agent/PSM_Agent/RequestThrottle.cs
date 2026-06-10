@@ -6,21 +6,25 @@ namespace PSM_Agent
 {
     public static class RequestThrottle
     {
-        private static readonly string logFile = @"C:\ShaiyaServer\PSM_Client\PSM_Agent.txt";
+        private static readonly string LogFilePath = @"C:\ShaiyaServer\PSM_Client\PSM_Agent.txt";
+        private const double MinIntervalSeconds = 1.0;
+
         public static void Enforce(string serviceName)
         {
-            DateTime currentTime = DateTime.Now;
-            if (!File.Exists(logFile))
+            if (!File.Exists(LogFilePath))
                 return;
-            string[] entries = File.ReadAllLines(logFile, Encoding.UTF8);
+
+            string[] entries = File.ReadAllLines(LogFilePath, Encoding.UTF8);
             if (entries.Length == 0)
                 return;
+
             string lastEntry = entries[entries.Length - 1];
             string[] parts = lastEntry.Split('|');
-            if (parts.Length > 1 && DateTime.TryParse(parts[0], out DateTime lastTimestamp))
+
+            if (parts.Length > 0 && DateTime.TryParse(parts[0], out DateTime lastTimestamp))
             {
-                double elapsedSeconds = (currentTime - lastTimestamp).TotalSeconds;
-                if (elapsedSeconds < 1)
+                double elapsedSeconds = (DateTime.Now - lastTimestamp).TotalSeconds;
+                if (elapsedSeconds < MinIntervalSeconds)
                 {
                     throw new InvalidOperationException("Request rate exceeded. Please wait before retrying.");
                 }
