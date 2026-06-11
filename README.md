@@ -9,10 +9,10 @@ It enables administrators to send server commands directly from SQL while enforc
 ---
 
 ### Environment
-- Windows
-- Visual Studio 2026
-- .NET Framework 4.8.1
-- C#
+- Windows  
+- Visual Studio 2026  
+- .NET Framework 4.8.1  
+- C#  
 
 ---
 
@@ -31,31 +31,50 @@ Core execution logic.
 - Enforces rate limits via `RequestThrottle`  
 - Builds the packet via `PacketFactory`  
 - Sends it to `ps_game` via socket  
-- Logs the result via `ActivityLogger`
+- Logs the result via `ActivityLogger`  
+- Uses centralized constants (`BufferSize`, `Host`, `Port`) from `ServiceConfig`
 
 ### CommandRules.cs
 Ensures commands are safe and allowed.  
-- Checks format, length, and whitelist (`/nt`, `/ntcn`, `/kick`, `/mmake`, plus any added)  
-- Throws exceptions for invalid input
+- Checks format, length, and whitelist (`/nt`, `/ntcn`, `/kick`, `/mmake`)  
+- Throws exceptions for invalid input  
+- Uses `ServiceConfig.MaxCommandLength` for length validation
 
 ### ActivityLogger.cs
 Handles logging of command attempts.  
-- Appends success or error entries to `PSM_Agent.txt`  
-- Records timestamp, user, service, command, and error message
+- Appends success or error entries to the log file  
+- Records timestamp, service, command, and error message  
+- Uses `ServiceConfig.LogFilePath` for centralized log location
 
 ### PacketFactory.cs
 Constructs the binary packet to send to `ps_game`.  
-- Uses fixed 258‑byte header (protocol requirement)  
+- Uses fixed header size and marker from `ServiceConfig`  
 - Combines header, service name, and command text  
 - Produces correct byte structure
 
 ### RequestThrottle.cs
 Prevents flooding.  
-- Reads the last log entry timestamp from `PSM_Agent.txt`  
+- Reads the last log entry timestamp from `ServiceConfig.LogFilePath`  
 - Blocks if a new command is issued within 1 second
 
 ### SocketHelper.cs
 Handles socket communication.  
-- Connects to `127.0.0.1:40900`  
+- Connects to `ServiceConfig.Host:ServiceConfig.Port`  
 - Sends packet data  
 - Receives server response
+
+### ServiceConfig.cs
+Centralized configuration.  
+- Host, Port, HeaderSize, HeaderMarker  
+- MaxCommandLength  
+- BufferSize  
+- LogFilePath (combines directory + filename)
+
+### ErrorHandler.cs
+Standardized error formatting.  
+- Produces consistent error strings for logging and SQL output
+
+### Utilities.cs
+Helper methods.  
+- Timestamp formatting  
+- String checks and other small utilities
