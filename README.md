@@ -35,8 +35,9 @@ Core execution logic.
 - Uses centralized constants (`BufferSize`, `Host`, `Port`) from `ServiceConfig`
 
 ### CommandRules.cs
-Ensures commands are safe and allowed.  
-- Checks format, length)  
+Ensures commands are safe.  
+- Checks format and length  
+- Requires that all commands start with `/`  
 - Throws exceptions for invalid input  
 - Uses `ServiceConfig.MaxCommandLength` for length validation
 
