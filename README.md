@@ -36,7 +36,7 @@ Core execution logic.
 
 ### CommandRules.cs
 Ensures commands are safe and allowed.  
-- Checks format, length, and whitelist (`/nt`, `/ntcn`, `/kick`, `/mmake`)  
+- Checks format, length, and whitelist (`AllowedCommands` from `ServiceConfig`)  
 - Throws exceptions for invalid input  
 - Uses `ServiceConfig.MaxCommandLength` for length validation
 
@@ -55,7 +55,7 @@ Constructs the binary packet to send to `ps_game`.
 ### RequestThrottle.cs
 Prevents flooding.  
 - Reads the last log entry timestamp from `ServiceConfig.LogFilePath`  
-- Blocks if a new command is issued within 1 second
+- Blocks if a new command is issued within `ServiceConfig.MinIntervalSeconds`
 
 ### SocketHelper.cs
 Handles socket communication.  
@@ -67,8 +67,10 @@ Handles socket communication.
 Centralized configuration.  
 - Host, Port, HeaderSize, HeaderMarker  
 - MaxCommandLength  
+- AllowedCommands  
 - BufferSize  
-- LogFilePath (combines directory + filename)
+- LogFilePath (combines directory + filename)  
+- MinIntervalSeconds
 
 ### ErrorHandler.cs
 Standardized error formatting.  
