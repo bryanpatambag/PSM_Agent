@@ -36,7 +36,7 @@ Core execution logic.
 
 ### CommandRules.cs
 Ensures commands are safe and allowed.  
-- Checks format, length, and whitelist (`AllowedCommands` from `ServiceConfig`)  
+- Checks format, length)  
 - Throws exceptions for invalid input  
 - Uses `ServiceConfig.MaxCommandLength` for length validation
 
@@ -67,7 +67,6 @@ Handles socket communication.
 Centralized configuration.  
 - Host, Port, HeaderSize, HeaderMarker  
 - MaxCommandLength  
-- AllowedCommands  
 - BufferSize  
 - LogFilePath (combines directory + filename)  
 - MinIntervalSeconds
